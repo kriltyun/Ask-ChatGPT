@@ -11,9 +11,10 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from . import odds as market_config
 from .ai import AIProviderError, ai_provider_status, generate_ai_report
 from .data import (CENTRAL, ROOT, SCHEDULE_URL, SourceError, game_data, iso, kickoff, player_data,
-                   regular_rows, season_and_week, source, store, team_metrics)
+                   regular_rows, season_and_week, source, store, team_metrics, utc_now)
 from .odds import SOURCE_URL as ODDS_SOURCE_URL, odds_client
 from .verification import SCOREBOARD_URL, verification_client, verification_label
 
@@ -88,19 +89,47 @@ def schedule(season: int | None = Query(None, ge=2024, le=2100),
 
 @app.get("/api/players")
 def players(season: int | None = Query(None, ge=2024, le=2100),
-            week: int | None = Query(None, ge=1, le=18)):
+            week: int | None = Query(None, ge=1, le=18), include_previous: bool = False):
     dataset, rows = schedule_dataset()
     try:
         selected_season, selected_week, _, _ = season_and_week(rows, season, week)
     except SourceError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from None
+    cutoff = None
     if week is None:
-        return player_data(selected_season, dataset)
-    selected_games = [row for row in rows if int(row["season"]) == selected_season
-                      and int(row["week"]) == selected_week]
-    cutoff = min((kickoff(row) for row in selected_games if kickoff(row)), default=None)
-    response = player_data(selected_season, dataset, cutoff_override=cutoff, roster_week=selected_week)
-    response["week"] = selected_week
+        response = player_data(selected_season, dataset)
+    else:
+        selected_games = [row for row in rows if int(row["season"]) == selected_season
+                          and int(row["week"]) == selected_week]
+        cutoff = min((kickoff(row) for row in selected_games if kickoff(row)), default=None)
+        response = player_data(selected_season, dataset, cutoff_override=cutoff, roster_week=selected_week)
+        response["week"] = selected_week
+    if not include_previous:
+        return response
+
+    previous_season = selected_season - 1
+    comparison_cutoff = min(cutoff or utc_now(), utc_now())
+    previous_url = f"https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{previous_season}.csv"
+    try:
+        previous = player_data(previous_season, dataset, cutoff_override=comparison_cutoff, roster_week=18)
+    except SourceError as exc:
+        previous = {"players": [], "source": {"name": "nflverse", "url": previous_url,
+                    "retrieved_at": None, "status": "unavailable", "cutoff_date": iso(comparison_cutoff)},
+                    "stats_through_week": None, "status": "unavailable", "error": str(exc)}
+    has_statistics = any(player.get("stats") is not None and player.get("sample_games", 0) > 0
+                         for player in previous.get("players", []))
+    previous_source = previous.get("source")
+    if not has_statistics:
+        # A roster snapshot cannot establish prior-season production totals.
+        previous_source = next((item for item in previous.get("sources", []) if item.get("url") == previous_url),
+                               previous_source)
+    response.update({"previous_season": previous_season,
+                     "previous_players": previous.get("players", []),
+                     "previous_source": previous_source,
+                     "previous_stats_through_week": previous.get("stats_through_week"),
+                     "previous_status": previous.get("status", "available") if has_statistics else "unavailable",
+                     "previous_error": previous.get("error") or (None if has_statistics else
+                                       "No completed regular-season player statistics are available for the previous season.")})
     return response
 
 
@@ -128,11 +157,24 @@ def prices(season: int | None = Query(None, ge=2024, le=2100),
             "error": representative.get("error") if representative else "No selected games available."}
 
 
+@app.get("/api/markets")
+def market_catalog():
+    return market_config.MARKET_CATALOG
+
+
 @app.get("/api/odds/{game_id}")
-def odds(game_id: str, season: int | None = Query(None, ge=2024, le=2100)):
+def odds(game_id: str, season: int | None = Query(None, ge=2024, le=2100), markets: str | None = None):
+    requested_markets = None
+    if markets is not None:
+        keys = [key.strip() for key in markets.split(",")]
+        supported = set(market_config.SUPPORTED_PROP_MARKETS) | {"h2h", "spreads", "totals"}
+        if any(not key or key not in supported for key in keys):
+            raise HTTPException(status_code=400, detail="Requested markets must be a comma-separated list of supported market identifiers.")
+        requested_markets = tuple(dict.fromkeys(key for key in keys if key not in {"h2h", "spreads", "totals"}))
     row, dataset, rows = find_game(game_id, season)
     selected_game = sourced_game(row, rows, dataset)
-    return odds_client.game(row, verified_status=selected_game["status"] if selected_game.get("status_source") else None)
+    return odds_client.game(row, verified_status=selected_game["status"] if selected_game.get("status_source") else None,
+                            requested_markets=requested_markets)
 
 
 @app.get("/api/game/{game_id}")

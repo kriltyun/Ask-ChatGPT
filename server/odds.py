@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import os
+import json
 import threading
 import time
 from datetime import datetime, timezone
 
 import httpx
 
-from .data import TEAM_NAMES, iso, kickoff, number, utc_now
+from .data import ROOT, TEAM_NAMES, iso, kickoff, number, utc_now
 
 BASE_URL = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl"
 SOURCE_URL = "https://the-odds-api.com/liveapi/guides/v4/"
@@ -18,12 +19,9 @@ STALE_AFTER_SECONDS = 900
 # Current provider-owned market documentation. Keep exact returned outcomes and
 # thresholds; player_tds_over is not necessarily a 2+ touchdown market.
 # https://the-odds-api.com/sports-odds-data/betting-markets.html
-PROP_MARKETS = (
-    "player_pass_yds", "player_pass_tds", "player_pass_attempts", "player_pass_completions",
-    "player_pass_interceptions", "player_rush_yds", "player_rush_attempts", "player_rush_tds",
-    "player_reception_yds", "player_receptions", "player_reception_tds",
-    "player_rush_reception_yds", "player_anytime_td", "player_tds_over", "player_1st_td",
-)
+MARKET_CATALOG = json.loads((ROOT / "config" / "nfl-markets.json").read_text())
+SUPPORTED_PROP_MARKETS = tuple(market["key"] for market in MARKET_CATALOG["markets"])
+PROP_MARKETS = tuple(market["key"] for market in MARKET_CATALOG["markets"] if market["default"])
 
 
 def american_implied(price: int | float | None) -> float | None:
@@ -138,11 +136,15 @@ class OddsClient:
             return {**(saved or {"payload": None, "retrieved_at": None}),
                     "status": "stale" if saved else "unavailable", "error": self.last_error}
 
-    def game(self, row: dict, include_props: bool = True, verified_status: str | None = None) -> dict:
+    def game(self, row: dict, include_props: bool = True, verified_status: str | None = None,
+             requested_markets: tuple[str, ...] | None = None) -> dict:
+        prop_markets = PROP_MARKETS if requested_markets is None else tuple(dict.fromkeys(requested_markets))
         initial = {"status": "disconnected", "event_id": None, "markets": [], "props": [],
                    "source": {"name": "The Odds API", "url": SOURCE_URL, "retrieved_at": None},
-                   "quota": dict(self.quota), "props_supported": list(PROP_MARKETS),
-                   "props_status": "disconnected", "props_max_request_cost": len(PROP_MARKETS), "error": None}
+                   "quota": dict(self.quota), "props_supported": list(SUPPORTED_PROP_MARKETS),
+                   "props_status": "disconnected", "props_max_request_cost": len(prop_markets), "error": None}
+        if any(market not in SUPPORTED_PROP_MARKETS for market in prop_markets):
+            return {**initial, "status": "unavailable", "error": "Requested NFL markets are not supported by this configuration."}
         if not os.environ.get("ODDS_API_KEY"):
             initial["error"] = "Connect ODDS_API_KEY in environment settings to load live sportsbook prices."
             return initial
@@ -183,10 +185,10 @@ class OddsClient:
             initial["error"] = "No DraftKings or FanDuel game prices were returned for this event."
         elif all(market["stale"] is True for market in initial["markets"]):
             initial["status"] = "stale"
-        if not include_props:
+        if not include_props or not prop_markets:
             initial["props_status"] = "not_requested"
             return initial
-        prop_data = self.request(f"/events/{event['id']}/odds", PROP_MARKETS)
+        prop_data = self.request(f"/events/{event['id']}/odds", prop_markets)
         if isinstance(prop_data.get("payload"), dict):
             initial["props"] = normalize_markets(prop_data["payload"], prop_data["retrieved_at"])
         initial["props_status"] = prop_data["status"]

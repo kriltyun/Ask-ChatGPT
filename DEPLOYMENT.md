@@ -56,4 +56,4 @@ Confirm the homepage loads, the selected schedule is independently verified, and
 
 The Free plan shown in Render sleeps after inactivity and has no persistent disk. Source caches can be recreated; watchlists and drafts remain local to the visitor's browser. A sleeping service may need time to start on the first visit.
 
-Current-instance build and startup validation are separate from a successful deployment on Render. No Render deployment or public URL is established until its build and live checks pass.
+The deployed website is [fieldwork-nfl.onrender.com](https://fieldwork-nfl.onrender.com/). For subsequent updates, push the source to `main` and check Render's deployment status. If automatic deployments are disabled, select **Manual Deploy → Deploy latest commit**. Wait for **Live**, then reload the website. Verify the changed behavior as well as the health endpoint; a successful build alone does not prove updated source data or sportsbook coverage.

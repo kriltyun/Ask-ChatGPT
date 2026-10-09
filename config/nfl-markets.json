@@ -1,0 +1,284 @@
+{
+  "version": 1,
+  "sport": "americanfootball_nfl",
+  "scope": "NFL event-specific player props, including the documented first-quarter passing-yards market. Alternate-line market duplicates are excluded.",
+  "source_url": "https://the-odds-api.com/sports-odds-data/betting-markets.html",
+  "source_section": "NFL, NCAAF, CFL Player Props API",
+  "documentation_checked_on": "2026-10-09",
+  "coverage_note": "Provider-documented NFL markets. A documented market is not guaranteed to be offered for every game, bookmaker, player or account. Preserve the exact bookmaker outcome and threshold.",
+  "selection_basis": "Provider-documented NFL market coverage; no measured betting-popularity ranking is supplied by this source.",
+  "request_note": "The 15 default markets cover core passing, rushing, receiving and touchdown research. The 18 optional markets are requested on demand to avoid unnecessary provider usage credits.",
+  "first_touchdown_note": "The documented NFL player_1st_td market is first touchdown scorer for the game. First touchdown scorer for a team is a distinct market and has no key listed in the provider's NFL section.",
+  "statistic_note": "A statistic identifies an available descriptive historical metric, not a forecast or settlement rule. Rush + receiving touchdowns exclude passing, return and other touchdowns. A null statistic means matching historical detail is not available from the connected weekly statistics feed.",
+  "markets": [
+    {
+      "key": "player_pass_yds",
+      "label": "Passing yards",
+      "category": "passing",
+      "statistic": "passing_yards",
+      "default": true,
+      "definition": "Player passing yards over or under the exact bookmaker line."
+    },
+    {
+      "key": "player_pass_tds",
+      "label": "Passing touchdowns",
+      "category": "passing",
+      "statistic": "passing_tds",
+      "default": true,
+      "definition": "Touchdown passes thrown by the player, over or under the exact line. A passing touchdown is not a touchdown scored by that passer."
+    },
+    {
+      "key": "player_pass_attempts",
+      "label": "Pass attempts",
+      "category": "passing",
+      "statistic": "attempts",
+      "default": true,
+      "definition": "Player pass attempts over or under the exact bookmaker line."
+    },
+    {
+      "key": "player_pass_completions",
+      "label": "Pass completions",
+      "category": "passing",
+      "statistic": "completions",
+      "default": true,
+      "definition": "Player completed passes over or under the exact bookmaker line."
+    },
+    {
+      "key": "player_pass_interceptions",
+      "label": "Interceptions thrown",
+      "category": "passing",
+      "statistic": "passing_interceptions",
+      "default": true,
+      "definition": "Interceptions thrown by the passer, over or under the exact line; this is distinct from interceptions made by a defender."
+    },
+    {
+      "key": "player_rush_yds",
+      "label": "Rushing yards",
+      "category": "rushing",
+      "statistic": "rushing_yards",
+      "default": true,
+      "definition": "Player rushing yards over or under the exact bookmaker line."
+    },
+    {
+      "key": "player_rush_attempts",
+      "label": "Carries (rush attempts)",
+      "category": "rushing",
+      "statistic": "carries",
+      "default": true,
+      "definition": "Player rushing attempts, also called carries, over or under the exact bookmaker line."
+    },
+    {
+      "key": "player_rush_tds",
+      "label": "Rushing touchdowns",
+      "category": "rushing",
+      "statistic": "rushing_tds",
+      "default": true,
+      "definition": "Touchdowns scored by rushing, over or under the exact bookmaker line; receiving and passing touchdowns are excluded."
+    },
+    {
+      "key": "player_reception_yds",
+      "label": "Receiving yards",
+      "category": "receiving",
+      "statistic": "receiving_yards",
+      "default": true,
+      "definition": "Player receiving yards over or under the exact bookmaker line."
+    },
+    {
+      "key": "player_receptions",
+      "label": "Receptions",
+      "category": "receiving",
+      "statistic": "receptions",
+      "default": true,
+      "definition": "Player completed receptions over or under the exact bookmaker line. Targets are a separate historical workload statistic."
+    },
+    {
+      "key": "player_reception_tds",
+      "label": "Receiving touchdowns",
+      "category": "receiving",
+      "statistic": "receiving_tds",
+      "default": true,
+      "definition": "Touchdowns scored by receiving, over or under the exact bookmaker line; rushing and passing touchdowns are excluded."
+    },
+    {
+      "key": "player_rush_reception_yds",
+      "label": "Rush + receiving yards",
+      "category": "combined",
+      "statistic": "rush_receiving_yards",
+      "default": true,
+      "definition": "The sum of player rushing and receiving yards, over or under the exact bookmaker line. Passing yards are excluded."
+    },
+    {
+      "key": "player_anytime_td",
+      "label": "Anytime touchdown scorer",
+      "category": "touchdowns",
+      "statistic": "touchdowns_scored",
+      "default": true,
+      "definition": "Whether the player scores a touchdown at any point in the game. Touchdown passes thrown do not make the passer a touchdown scorer. Historical totals include sourced rushing, receiving, special-teams, defensive, and fumble-recovery scores. These totals are descriptive, not scoring probabilities; the bookmaker's scoring rules govern settlement."
+    },
+    {
+      "key": "player_tds_over",
+      "label": "Touchdowns scored (over only)",
+      "category": "touchdowns",
+      "statistic": "touchdowns_scored",
+      "default": true,
+      "definition": "Player touchdowns scored over the exact returned threshold. Only an Over 1.5 outcome represents 2+ touchdowns; do not relabel another threshold as 2+. Passing touchdowns thrown are distinct."
+    },
+    {
+      "key": "player_1st_td",
+      "label": "First touchdown scorer",
+      "category": "touchdowns",
+      "statistic": null,
+      "default": true,
+      "definition": "Whether the player scores the first touchdown of the game, not merely the first touchdown for their team. Season touchdown totals do not establish first-touchdown counts or probabilities; matching play-by-play scoring sequence is required."
+    },
+    {
+      "key": "player_pass_rush_yds",
+      "label": "Pass + rushing yards",
+      "category": "combined",
+      "statistic": "pass_rush_yards",
+      "default": false,
+      "definition": "The sum of player passing and rushing yards, over or under the exact bookmaker line. Receiving yards are excluded."
+    },
+    {
+      "key": "player_pass_rush_reception_yds",
+      "label": "Pass + rush + receiving yards",
+      "category": "combined",
+      "statistic": "pass_rush_receiving_yards",
+      "default": false,
+      "definition": "The sum of player passing, rushing and receiving yards, over or under the exact bookmaker line."
+    },
+    {
+      "key": "player_pass_rush_reception_tds",
+      "label": "Pass + rush + receiving touchdowns",
+      "category": "combined",
+      "statistic": "pass_rush_receiving_tds",
+      "default": false,
+      "definition": "The sum of touchdown passes thrown and rushing and receiving touchdowns scored by the player, over or under the exact line. This explicitly includes passing touchdowns and is distinct from anytime touchdown scorer."
+    },
+    {
+      "key": "player_rush_reception_tds",
+      "label": "Rush + receiving touchdowns",
+      "category": "combined",
+      "statistic": "rush_receiving_tds",
+      "default": false,
+      "definition": "The sum of player rushing and receiving touchdowns, over or under the exact bookmaker line. Passing, return and other touchdowns are excluded."
+    },
+    {
+      "key": "player_pass_longest_completion",
+      "label": "Longest pass completion",
+      "category": "passing",
+      "statistic": null,
+      "default": false,
+      "definition": "Yardage of the player's longest completed pass in the game, over or under the exact line. This is a single-play maximum, not total passing yards."
+    },
+    {
+      "key": "player_rush_longest",
+      "label": "Longest rush",
+      "category": "rushing",
+      "statistic": null,
+      "default": false,
+      "definition": "Yardage of the player's longest rush in the game, over or under the exact line. This is a single-play maximum, not total rushing yards."
+    },
+    {
+      "key": "player_reception_longest",
+      "label": "Longest reception",
+      "category": "receiving",
+      "statistic": null,
+      "default": false,
+      "definition": "Yardage of the player's longest reception in the game, over or under the exact line. This is a single-play maximum, not total receiving yards."
+    },
+    {
+      "key": "player_pass_yds_q1",
+      "label": "First-quarter passing yards",
+      "category": "passing",
+      "statistic": null,
+      "default": false,
+      "definition": "Player passing yards during the first quarter only, over or under the exact line. Full-game or season passing yards do not provide quarter-specific results."
+    },
+    {
+      "key": "player_tds",
+      "label": "Touchdowns scored (over/under)",
+      "category": "touchdowns",
+      "statistic": "touchdowns_scored",
+      "default": false,
+      "definition": "Player touchdowns scored over or under the exact returned threshold. This market includes both outcome sides and is distinct from the over-only market. Touchdown passes thrown are separate; bookmaker scoring rules govern settlement."
+    },
+    {
+      "key": "player_last_td",
+      "label": "Last touchdown scorer",
+      "category": "touchdowns",
+      "statistic": null,
+      "default": false,
+      "definition": "Whether the player scores the last touchdown of the game. Season touchdown totals do not establish last-touchdown counts or probabilities; matching play-by-play scoring sequence is required."
+    },
+    {
+      "key": "player_field_goals",
+      "label": "Field goals made",
+      "category": "kicking",
+      "statistic": "fg_made",
+      "default": false,
+      "definition": "Field goals made by the kicker, over or under the exact bookmaker line. Field-goal attempts and extra points are separate quantities."
+    },
+    {
+      "key": "player_kicking_points",
+      "label": "Kicking points",
+      "category": "kicking",
+      "statistic": "kicking_points",
+      "default": false,
+      "definition": "Points scored by the kicker through field goals and points after touchdowns, over or under the exact bookmaker line."
+    },
+    {
+      "key": "player_pats",
+      "label": "Extra points made",
+      "category": "kicking",
+      "statistic": "pat_made",
+      "default": false,
+      "definition": "Successful points after touchdowns by the kicker, over or under the exact bookmaker line. This is distinct from field goals and total kicking points."
+    },
+    {
+      "key": "player_sacks",
+      "label": "Defensive sacks",
+      "category": "defense",
+      "statistic": "def_sacks",
+      "default": false,
+      "definition": "Sacks credited to the defensive player, over or under the exact bookmaker line. These are distinct from sacks taken by a quarterback; use the returned line and bookmaker rules for fractional sack credit."
+    },
+    {
+      "key": "player_solo_tackles",
+      "label": "Solo tackles",
+      "category": "defense",
+      "statistic": "def_tackles_solo",
+      "default": false,
+      "definition": "Solo tackles credited to the defensive player, over or under the exact bookmaker line. Assisted tackles are excluded."
+    },
+    {
+      "key": "player_assists",
+      "label": "Assisted tackles",
+      "category": "defense",
+      "statistic": "def_tackle_assists",
+      "default": false,
+      "definition": "Assisted tackles credited to the defensive player, over or under the exact bookmaker line. In the NFL market this is a defensive statistic, not a basketball assist."
+    },
+    {
+      "key": "player_tackles_assists",
+      "label": "Tackles + assists",
+      "category": "defense",
+      "statistic": "tackles_assists",
+      "default": false,
+      "definition": "Combined tackles and assists credited to the defensive player, over or under the exact bookmaker line. Preserve the bookmaker's exact grading rules and threshold."
+    },
+    {
+      "key": "player_defensive_interceptions",
+      "label": "Defensive interceptions",
+      "category": "defense",
+      "statistic": "def_interceptions",
+      "default": false,
+      "definition": "Interceptions made by the defensive player, over or under the exact bookmaker line. These are distinct from interceptions thrown by a passer."
+    }
+  ],
+  "statistics_sources": [
+    "https://github.com/nflverse/nflverse-data/releases/tag/stats_player",
+    "https://raw.githubusercontent.com/nflverse/nflreadr/main/data-raw/dictionary_player_stats.json",
+    "https://raw.githubusercontent.com/nflverse/nflfastR/master/R/calculate_stats.R"
+  ]
+}

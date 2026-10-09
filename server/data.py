@@ -230,7 +230,12 @@ def game_data(row: dict, all_rows: list[dict], dataset: dict) -> dict:
 
 STAT_FIELDS = ("completions", "attempts", "passing_yards", "passing_tds", "passing_interceptions",
                "carries", "rushing_yards", "rushing_tds", "receptions", "targets",
-               "receiving_yards", "receiving_tds", "passing_epa", "rushing_epa", "receiving_epa")
+               "receiving_yards", "receiving_tds", "passing_epa", "rushing_epa", "receiving_epa",
+               "fg_made", "fg_att", "pat_made", "pat_att", "def_sacks",
+               "def_tackles_solo", "def_tackles_with_assist", "def_tackle_assists", "def_interceptions",
+               "special_teams_tds", "def_tds", "fumble_recovery_tds")
+PROP_PLAYER_POSITIONS = {"QB", "RB", "WR", "TE", "FB", "K", "DE", "FS", "OLB", "S", "MLB",
+                         "LB", "DT", "CB", "NT", "SAF", "DB", "ILB", "DL", "EDGE", "SS"}
 
 
 def player_data(season: int, schedule: dict, game: dict | None = None,
@@ -278,7 +283,7 @@ def player_data(season: int, schedule: dict, game: dict | None = None,
     for pid, row in latest_roster.items():
         if teams and row.get("team") not in teams:
             continue
-        if row.get("position") not in {"QB", "RB", "WR", "TE"}:
+        if row.get("position") not in PROP_PLAYER_POSITIONS:
             continue
         if row.get("status") not in (None, "", "ACT"):
             continue
@@ -290,7 +295,7 @@ def player_data(season: int, schedule: dict, game: dict | None = None,
                         "retrieved_at": roster.get("retrieved_at")}
     sample_ids: dict[str, set[str]] = {}
     for row in sorted(selected_stats, key=lambda r: int(r["week"])):
-        if row.get("position") not in {"QB", "RB", "WR", "TE"}:
+        if row.get("position") not in PROP_PLAYER_POSITIONS:
             continue
         pid = row["player_id"]
         if pid not in players:
